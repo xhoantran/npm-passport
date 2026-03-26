@@ -81,6 +81,12 @@ console.error('');
 
 // ── Find Chrome/Chromium/Edge ───────────────────────────────
 function findBrowser() {
+  // CHROME_PATH env var takes priority
+  if (process.env.CHROME_PATH) {
+    if (fs.existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;
+    warn(`CHROME_PATH set to '${process.env.CHROME_PATH}' but file not found, searching defaults...`);
+  }
+
   const candidates = process.platform === 'darwin' ? [
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
@@ -110,7 +116,8 @@ function findBrowser() {
 async function main() {
   const executablePath = findBrowser();
   if (!executablePath) {
-    die('No Chrome/Chromium/Edge found. Install Chrome or set CHROME_PATH.');
+    die(`No Chrome/Chromium/Edge found. Set CHROME_PATH to your browser executable:
+  CHROME_PATH=/path/to/chrome node npm-passport.mjs <package>`);
   }
   info(`Browser: ${executablePath}`);
 
