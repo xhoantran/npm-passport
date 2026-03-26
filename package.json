@@ -1,0 +1,23 @@
+{
+  "name": "npm-passport",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xhoantran/npm-passport.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xhoantran/npm-passport/issues"
+  },
+  "homepage": "https://github.com/xhoantran/npm-passport#readme",
+  "dependencies": {
+    "puppeteer-core": "^24.40.0"
+  }
+}
