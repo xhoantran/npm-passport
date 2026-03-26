@@ -2,11 +2,11 @@
 // ============================================================
 // npm-passport
 // Downloads npm packages directly from www.npmjs.com using a
-// headless browser (puppeteer-core + system Chrome/Chromium).
+// headless browser (puppeteer with bundled Chromium).
 // Use when registry.npmjs.org and CDN mirrors are blocked by
 // enterprise firewall but www.npmjs.com is accessible.
 //
-// Setup:  npm install puppeteer-core
+// Setup:  npm install
 //
 // Usage:
 //   node npm-passport.mjs <package>
@@ -20,12 +20,9 @@
 //   node npm-passport.mjs express --vendor ./lib/vendor
 // ============================================================
 
-import puppeteer from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ── Colors ──────────────────────────────────────────────────
 const C = {
@@ -79,48 +76,8 @@ info(`Version : ${C.bold}${pkgVersion}${C.reset}`);
 info(`Vendor  : ${C.bold}${destDir}${C.reset}`);
 console.error('');
 
-// ── Find Chrome/Chromium/Edge ───────────────────────────────
-function findBrowser() {
-  // CHROME_PATH env var takes priority
-  if (process.env.CHROME_PATH) {
-    if (fs.existsSync(process.env.CHROME_PATH)) return process.env.CHROME_PATH;
-    warn(`CHROME_PATH set to '${process.env.CHROME_PATH}' but file not found, searching defaults...`);
-  }
-
-  const candidates = process.platform === 'darwin' ? [
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
-    '/Applications/Chromium.app/Contents/MacOS/Chromium',
-    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-  ] : process.platform === 'win32' ? [
-    `${process.env.PROGRAMFILES}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${process.env['PROGRAMFILES(X86)']}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${process.env.PROGRAMFILES}\\Microsoft\\Edge\\Application\\msedge.exe`,
-  ] : [
-    '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable',
-    '/usr/bin/chromium',
-    '/usr/bin/chromium-browser',
-    '/snap/bin/chromium',
-    '/usr/bin/microsoft-edge',
-  ];
-
-  for (const p of candidates) {
-    if (fs.existsSync(p)) return p;
-  }
-  return null;
-}
-
 // ── Main ────────────────────────────────────────────────────
 async function main() {
-  const executablePath = findBrowser();
-  if (!executablePath) {
-    die(`No Chrome/Chromium/Edge found. Set CHROME_PATH to your browser executable:
-  CHROME_PATH=/path/to/chrome node npm-passport.mjs <package>`);
-  }
-  info(`Browser: ${executablePath}`);
-
   // Clean destination
   if (fs.existsSync(destDir)) {
     warn(`Removing existing: ${destDir}`);
@@ -128,9 +85,8 @@ async function main() {
   }
   fs.mkdirSync(destDir, { recursive: true });
 
-  info('Launching headless browser...');
+  info('Launching headless browser (bundled Chromium)...');
   const browser = await puppeteer.launch({
-    executablePath,
     headless: 'new',
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
